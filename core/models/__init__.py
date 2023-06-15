@@ -1,1 +1,1 @@
-from .user_info import ContactInfoModel, AddressInfoModel
+from .notebook import ContactInfoModel, AddressInfoModel
