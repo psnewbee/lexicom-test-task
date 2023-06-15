@@ -10,8 +10,15 @@ services:
       dockerfile: ./Dockerfile
     volumes:
       - .:/app
-    environment:
-      - MODULE_NAME=core.main
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent --show-error --write-out '%{http_code}' http://localhost:8000/api/healthcheck/ping | grep -q 200"]
+      interval: 30s
+      timeout: 1s
+      start_period: 5s
+      retries: 3
+    depends_on:
+      redis:
+        condition: service_healthy
     ports:
       - "8000:8000"
     env_file:
@@ -32,6 +39,12 @@ services:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
+    healthcheck:
+      test: redis-cli -a ${REDIS_PASSWORD} -p ${REDIS_PORT} ping | grep PONG
+      interval: 10s
+      timeout: 20s
+      retries: 5
+      start_period: 30s
     env_file:
       - .env
     networks:
