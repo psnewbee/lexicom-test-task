@@ -17,7 +17,6 @@ FROM short_names
 WHERE LEFT(full_names.name, POSITION('.' in full_names.name) - 1) = short_names.name
 
 ## [Solution #2](Python script)
-##--------------------------------------------------------------------------##
 import psycopg2
 
 def update_fullname_table():
@@ -78,4 +77,3 @@ def update_fullname_table():
     conn.commit()
     cursor.close()
     conn.close()
-##--------------------------------------------------------------------------##
