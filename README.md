@@ -17,63 +17,64 @@ FROM short_names
 WHERE LEFT(full_names.name, POSITION('.' in full_names.name) - 1) = short_names.name
 
 ## [Solution #2](Python script)
-import psycopg2
-
-def update_fullname_table():
-    conn = psycopg2.connect(
-        database="db",
-        user="user",
-        password="password",
-        host="postgres",
-        port="5432"
-    )
-
-    cursor = conn.cursor()
-
-    select_query_shortnames = '''
-        SELECT name, status
-        FROM short_names
-        ORDER BY name ASC
-    '''
     
-    cursor.execute(select_query_shortnames)
-    shortnames_rows = cursor.fetchall()
+    import psycopg2
 
-    select_query_fullnames = '''
-        SELECT name, status
-        FROM full_names
-        ORDER BY name ASC
-    '''
+    def update_fullname_table():
+        conn = psycopg2.connect(
+            database="db",
+            user="user",
+            password="password",
+            host="postgres",
+            port="5432"
+        )
 
-    cursor.execute(select_query_fullnames)
-    fullnames_rows = cursor.fetchall()
+        cursor = conn.cursor()
 
-    counter = 0
-    full_name, _ = fullnames_rows[counter][0].split('.')
-    
-    for short_name, status in shortnames_rows:
+        select_query_shortnames = '''
+            SELECT name, status
+            FROM short_names
+            ORDER BY name ASC
+        '''
         
-        if short_name == full_name:
-            fullnames_rows[counter] = (fullnames_rows[counter][0], status)
+        cursor.execute(select_query_shortnames)
+        shortnames_rows = cursor.fetchall()
+
+        select_query_fullnames = '''
+            SELECT name, status
+            FROM full_names
+            ORDER BY name ASC
+        '''
+
+        cursor.execute(select_query_fullnames)
+        fullnames_rows = cursor.fetchall()
+
+        counter = 0
+        full_name, _ = fullnames_rows[counter][0].split('.')
+        
+        for short_name, status in shortnames_rows:
             
-            if counter != len(fullnames_rows) - 1:
-                counter += 1
-                full_name, _ = fullnames_rows[counter][0].split('.')
+            if short_name == full_name:
+                fullnames_rows[counter] = (fullnames_rows[counter][0], status)
+                
+                if counter != len(fullnames_rows) - 1:
+                    counter += 1
+                    full_name, _ = fullnames_rows[counter][0].split('.')
+        
+        
+        truncate_query = '''
+            TRUNCATE TABLE full_names
+        '''
+
+        cursor.execute(truncate_query)
+
+        insert_query_fullname_updated = '''
+            INSERT INTO full_names (name, status)
+            VALUES (%s, %s)
+        '''
+
+        cursor.executemany(insert_query_fullname_updated, fullnames_rows)
     
-    
-    truncate_query = '''
-        TRUNCATE TABLE full_names
-    '''
-
-    cursor.execute(truncate_query)
-
-    insert_query_fullname_updated = '''
-        INSERT INTO full_names (name, status)
-        VALUES (%s, %s)
-    '''
-
-    cursor.executemany(insert_query_fullname_updated, fullnames_rows)
- 
-    conn.commit()
-    cursor.close()
-    conn.close()
+        conn.commit()
+        cursor.close()
+        conn.close()
