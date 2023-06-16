@@ -7,14 +7,8 @@
 ## [Swagger endpoint](http://localhost:8000/docs)
 
 
+
 # Solutions for test case #2
-
-## [Solution #1](SQL Query)
-UPDATE full_names
-SET status = short_names.status
-FROM short_names
-WHERE full_names.name LIKE short_names.name || '.%';
-
 
 ## [Solution #1](SQL Query)
 UPDATE full_names
@@ -22,8 +16,7 @@ SET status = short_names.status
 FROM short_names
 WHERE LEFT(full_names.name, POSITION('.' in full_names.name) - 1) = short_names.name
 
-	 
-## [Solution #2](python script)
+## [Solution #2](Python script)
 ##--------------------------------------------------------------------------##
 import psycopg2
 
